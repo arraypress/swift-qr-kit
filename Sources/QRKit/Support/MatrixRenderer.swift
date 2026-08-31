@@ -10,6 +10,7 @@
 //
 
 import CoreGraphics
+import Foundation
 
 /// Draws boolean module grids as crisp bitmaps.
 enum MatrixRenderer {
@@ -43,5 +44,41 @@ enum MatrixRenderer {
         }
         guard let image = context.makeImage() else { throw QRError.renderFailed }
         return image
+    }
+
+    /// The matrix as an SVG document: the same whole-unit modules and
+    /// quiet zone as the bitmap, but resolution-free. Dark modules merge
+    /// into horizontal runs so the path stays small, and the pixel size
+    /// follows the bitmap's whole-pixel rounding so the two outputs
+    /// always agree.
+    static func svg(from modules: [[Bool]], size: Int, quietZone: Int,
+                    foreground: QRColor, background: QRColor) -> String {
+        let count = modules.count
+        let total = count + quietZone * 2
+        let moduleSize = max(1, size / max(1, total))
+        let side = moduleSize * total
+        var path = ""
+        for (rowIndex, row) in modules.enumerated() {
+            var column = 0
+            while column < row.count {
+                guard row[column] else { column += 1; continue }
+                var run = 1
+                while column + run < row.count, row[column + run] { run += 1 }
+                path += "M\(quietZone + column) \(quietZone + rowIndex)h\(run)v1h-\(run)z"
+                column += run
+            }
+        }
+        return """
+        <svg xmlns="http://www.w3.org/2000/svg" width="\(side)" height="\(side)" viewBox="0 0 \(total) \(total)" shape-rendering="crispEdges">
+        <rect width="\(total)" height="\(total)" fill="\(hex(background))"/>
+        <path d="\(path)" fill="\(hex(foreground))"/>
+        </svg>
+        """
+    }
+
+    /// `#RRGGBB` for an SVG fill.
+    static func hex(_ color: QRColor) -> String {
+        func channel(_ value: Double) -> Int { Int((max(0, min(1, value)) * 255).rounded()) }
+        return String(format: "#%02X%02X%02X", channel(color.red), channel(color.green), channel(color.blue))
     }
 }

@@ -30,6 +30,15 @@ extension QRPayload {
             return PayloadEncoding.sms(number, body: body)
         case .geo(let latitude, let longitude):
             return "geo:\(latitude),\(longitude)"
+        case .contact(let card):
+            return PayloadEncoding.contact(card)
+        case .event(let event):
+            return PayloadEncoding.event(title: event.title, location: event.location,
+                                         start: event.start, end: event.end, allDay: event.allDay)
+        case .email(let to, let cc, let subject, let body):
+            return PayloadEncoding.email(to: to, cc: cc, subject: subject, body: body)
+        case .whatsapp(let number, let message):
+            return PayloadEncoding.whatsapp(number: number, message: message)
         }
     }
 }

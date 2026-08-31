@@ -71,4 +71,14 @@ public enum QRGenerator {
         CGImageDestinationAddImage(destination, image, nil)
         guard CGImageDestinationFinalize(destination) else { throw QRError.renderFailed }
     }
+
+    /// The code as an SVG document — the same modules, quiet zone and
+    /// colours as the bitmap, but resolution-free for print.
+    public static func svg(for payload: QRPayload, size: Int = 512,
+                           level: QRCorrectionLevel = .medium,
+                           foreground: QRColor = .black,
+                           background: QRColor = .white) throws -> String {
+        MatrixRenderer.svg(from: try matrix(for: payload, level: level), size: size,
+                           quietZone: 4, foreground: foreground, background: background)
+    }
 }

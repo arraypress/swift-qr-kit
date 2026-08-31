@@ -21,6 +21,15 @@ public enum QRPayload: Sendable, Equatable {
     case wifi(ssid: String, password: String?, security: WifiSecurity, hidden: Bool)
     /// A contact card (vCard 3.0).
     case vCard(name: String, phone: String?, email: String?, organization: String?, url: String?)
+    /// A rich contact card — labelled phones and emails, address, title,
+    /// birthday, note.
+    case contact(Contact)
+    /// A calendar event a camera offers to add.
+    case event(Event)
+    /// An email compose action with cc and body.
+    case email(to: String, cc: String?, subject: String?, body: String?)
+    /// A WhatsApp chat link (`wa.me`), message optionally pre-filled.
+    case whatsapp(number: String, message: String?)
     /// An email compose action.
     case mailto(String, subject: String?)
     /// A phone number to dial.
