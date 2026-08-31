@@ -99,4 +99,13 @@ final class QRKitTests: XCTestCase {
                                              foreground: .black, background: .white)
         XCTAssertEqual(image.width, 60, "2 modules + 2 quiet on each side = 4 · 15 px")
     }
+
+    func testEscapingPrimitivesAlone() {
+        // The rules pinned with no payload in sight — the point of the
+        // Support split: an escaping rule is testable by itself.
+        XCTAssertEqual(PayloadEncoding.wifiEscaped(#"a\b;c,d:e"f"#), #"a\\b\;c\,d\:e\"f"#)
+        XCTAssertEqual(PayloadEncoding.vCardEscaped("Line\r\nBreak; and, slash\\"), #"Line\nBreak\; and\, slash\\"#)
+        XCTAssertEqual(PayloadEncoding.percentQuery("hi there"), "hi%20there")
+        XCTAssertNil(PayloadEncoding.percentQuery(nil))
+    }
 }
